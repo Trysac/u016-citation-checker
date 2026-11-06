@@ -34,7 +34,9 @@ def statuses(answer: str, *passages: Passage) -> list[str]:
 
 
 def test_split_claims_acceptance_example() -> None:
-    claims = split_claims("Paris is in France [1]. It has 2.1 million people [1, 2]. E.g. it is big [3-4].")
+    claims = split_claims(
+        "Paris is in France [1]. It has 2.1 million people [1, 2]. E.g. it is big [3-4]."
+    )
     assert len(claims) == 3
     assert [claim.citations for claim in claims] == [("1",), ("1", "2"), ("3", "4")]
     assert [claim.index for claim in claims] == [0, 1, 2]
@@ -168,7 +170,7 @@ def test_public_names_are_exported() -> None:
     assert citation_checker.__version__ == "0.1.0"
     for name in citation_checker.__all__:
         assert hasattr(citation_checker, name)
-    assert citation_checker.ENGLISH_STOPWORDS >= {"the", "is"}
+    assert {"the", "is"} <= citation_checker.ENGLISH_STOPWORDS
     assert "e.g" in citation_checker.DEFAULT_ABBREVIATIONS
 
 
@@ -235,10 +237,13 @@ def test_thousands_separators_are_normalised() -> None:
 
 
 def test_other_number_shapes_are_kept_as_written() -> None:
-    comma = check_citations("The rate was 2,5 percent [1].", [Passage("1", "The rate was 25 percent")])
+    comma = check_citations(
+        "The rate was 2,5 percent [1].", [Passage("1", "The rate was 25 percent")]
+    )
     assert comma.results[0].missing_numbers == ("2,5",)
     percent = Passage("1", "Growth reached 50 percent")
-    assert check_citations("Growth reached 50% [1].", [percent]).results[0].missing_numbers == ("50%",)
+    result = check_citations("Growth reached 50% [1].", [percent])
+    assert result.results[0].missing_numbers == ("50%",)
     embedded = Passage("1", "The version v2 ships soon")
     answer = "The version v2.1 ships soon [1]."
     assert check_citations(answer, [embedded]).results[0].missing_numbers == ()
@@ -265,7 +270,9 @@ def test_borderline_claim_is_judged_with_wrapped_prompt() -> None:
     assert system["role"] == "system"
     assert "UNSUPPORTED" in system["content"]
     assert user["role"] == "user"
-    expected = '<claim>Alpha beta gamma delta epsilon.</claim>\n<passage id="1">alpha beta</passage>'
+    expected = (
+        '<claim>Alpha beta gamma delta epsilon.</claim>\n<passage id="1">alpha beta</passage>'
+    )
     assert user["content"] == expected
 
 
