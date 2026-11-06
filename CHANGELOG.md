@@ -9,4 +9,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Added `split_claims` and `check_citations` to verify that each claim of a RAG answer is supported by the passages it cites (lexical and numeric checks, optional capped LLM judge for borderline claims), with `LLMPort`, `RecordedLLM`, `FakeLLM` and the typed `CitationError`.
 - Initial project structure from the factory utility template.
