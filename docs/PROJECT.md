@@ -2,12 +2,13 @@
 
 ## Objective
 
-Check that each claim in a generated answer is supported by the passages it cites, with deterministic lexical and numeric checks and an optional LLM judge for borderline claims
+Check that each claim in a generated answer is supported by the passages it cites, using deterministic lexical and numeric checks, with an optional LLM judge used only for borderline claims. The library splits an answer into claims, resolves citation markers, scores support and reports missing sources, uncited claims and numbers that do not appear in the cited passages.
 
 ## Scope
 
 - In scope: the public API documented in [README.md](../README.md), typed and tested.
-- Out of scope: anything that needs runtime dependencies or I/O without an accepted ADR.
+- In scope: English stopword lists supplied by the library, which the caller can replace through the `stopwords` argument.
+- Out of scope: retrieval of passages, non-English stopwords beyond caller-supplied sets, natural language inference models, and anything that needs runtime dependencies or I/O without an accepted ADR.
 
 ## Timeline
 
