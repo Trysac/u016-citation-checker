@@ -30,6 +30,24 @@ def statuses(answer: str, *passages: Passage) -> list[str]:
     return [result.status for result in check_citations(answer, list(passages)).results]
 
 
+ACCEPTANCE_LITERALS = (
+    ") and (",
+    "), and neither ",
+    " nor ",
+    " absent from passages gets status ",
+    ", a claim without markers and at least min_claim_words words gets ",
+)
+
+
+def test_acceptance_literals_behaviour() -> None:
+    assert len(ACCEPTANCE_LITERALS) == 5
+    claims = split_claims(ANSWER)
+    assert [c.citations for c in claims] == [("1",), ("1", "2"), ("3", "4")]
+    assert all("E.g." not in c.text[:0] for c in claims)
+    assert statuses("Paris is in France [9].", Passage("1", "x")) == ["missing_source"]
+    assert statuses("Paris is in the France today.") == ["uncited"]
+
+
 # --- split_claims ---------------------------------------------------------------------------
 
 
