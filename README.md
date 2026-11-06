@@ -8,8 +8,11 @@ Check that each claim in a generated answer is supported by the passages it cite
 
 ## Problem
 
-Describe in two or three sentences the concrete problem this utility solves, who hits it, and what
-they do today without it. Replace this paragraph when the first real feature lands.
+RAG answers cite sources, but citations are often wrong: a claim cites a passage that does not say it,
+cites a missing passage or cites nothing, and numbers drift between source and answer. Reviewing this by
+hand does not scale and running an LLM on every claim is slow and costly. This library splits an answer
+into claims, resolves citation markers, scores support deterministically and asks an injected LLM only
+about borderline claims.
 
 ## Install
 
@@ -24,16 +27,23 @@ Requires Python 3.10 or newer. No runtime dependencies.
 ## Usage
 
 ```python
-import citation_checker
+from citation_checker import Passage, check_citations
 
-# normalize() trims surrounding whitespace and lower-cases the text.
-print(citation_checker.normalize("  Hello World "))  # -> "hello world"
+passages = [Passage("1", "Paris is the capital of France and has 2.1 million people")]
+report = check_citations("Paris has 2.2 million people [1].", passages)
+print(report.results[0].status, report.results[0].missing_numbers)
+print(report.support_ratio)
+```
 
-# Blank input is rejected explicitly instead of returning an empty string.
-try:
-    citation_checker.normalize("   ")
-except ValueError as exc:
-    print(f"rejected: {exc}")
+Borderline claims can be judged by an injected `LLMPort`; `RecordedLLM` replays fixed replies:
+
+```python
+from citation_checker import Passage, RecordedLLM, check_citations
+
+llm = RecordedLLM(["SUPPORTED"])
+passages = [Passage("1", "Paris is the capital of France")]
+report = check_citations("Paris is a large city in France [1].", passages, llm=llm)
+print(report.results[0].status, report.results[0].judged)
 ```
 
 ## Documentation
